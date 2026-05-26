@@ -1,0 +1,77 @@
+#cloud-config
+package_update: true
+packages:
+  - nginx
+  - nodejs
+  - npm
+
+write_files:
+  - path: /etc/nginx/sites-available/ping
+    content: |
+      server {
+          listen 80 default_server;
+          listen [::]:80 default_server;
+
+          location /ping {
+              add_header 'Content-Type' 'text/plain';
+              add_header 'Content-Length' '0';
+              add_header 'Access-Control-Allow-Origin' '*';
+              add_header 'Access-Control-Allow-Methods' 'GET, OPTIONS';
+              add_header 'Cache-Control' 'no-cache, no-store, must-revalidate';
+              
+              if ($request_method = 'OPTIONS') {
+                  add_header 'Access-Control-Allow-Origin' '*';
+                  add_header 'Access-Control-Allow-Methods' 'GET, OPTIONS';
+                  add_header 'Access-Control-Max-Age' '86400';
+                  add_header 'Content-Length' '0';
+                  return 204;
+              }
+
+              return 200 '';
+          }
+
+          location / {
+              return 404;
+          }
+      }
+
+  - path: /opt/ws-echo/ws-echo.js
+    content: |
+      const { WebSocketServer } = require('ws');
+      const PORT = 8080;
+      const wss = new WebSocketServer({ port: PORT });
+      wss.on('connection', (ws) => {
+        ws.on('message', (data) => { ws.send(data.toString()); });
+        ws.on('error', () => {});
+      });
+      console.log(`WebSocket echo server listening on port ${PORT}`);
+
+  - path: /opt/ws-echo/package.json
+    content: |
+      {"name":"ws-echo","version":"1.0.0","dependencies":{"ws":"^8.18.0"}}
+
+  - path: /etc/systemd/system/ws-echo.service
+    content: |
+      [Unit]
+      Description=WebSocket Echo Server
+      After=network.target
+
+      [Service]
+      Type=simple
+      WorkingDirectory=/opt/ws-echo
+      ExecStart=/usr/bin/node /opt/ws-echo/ws-echo.js
+      Restart=always
+      RestartSec=5
+
+      [Install]
+      WantedBy=multi-user.target
+
+runcmd:
+  - rm -f /etc/nginx/sites-enabled/default
+  - ln -s /etc/nginx/sites-available/ping /etc/nginx/sites-enabled/ping
+  - systemctl restart nginx
+  - systemctl enable nginx
+  - cd /opt/ws-echo && npm install
+  - systemctl daemon-reload
+  - systemctl enable ws-echo
+  - systemctl start ws-echo

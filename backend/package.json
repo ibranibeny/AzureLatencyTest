@@ -1,0 +1,14 @@
+{
+  "name": "latency-backend",
+  "version": "1.0.0",
+  "description": "WebSocket echo + ICMP ping backend for Azure Latency Test",
+  "main": "ws-echo.js",
+  "scripts": {
+    "start": "node ws-echo.js",
+    "start:ping": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "ws": "^8.18.0"
+  }
+}

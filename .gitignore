@@ -1,1 +1,1 @@
-docs/_site/\n*.gem\n*.lock\nnode_modules/\n.DS_Store\n
+docs/_site/\n*.gem\n*.lock\nnode_modules/\n.DS_Store\nui/.angular/

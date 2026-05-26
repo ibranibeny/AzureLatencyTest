@@ -1,0 +1,78 @@
+<div class="min-h-screen bg-gray-50">
+  <!-- Header -->
+  <header class="bg-white border-b border-gray-200 shadow-sm">
+    <div class="max-w-6xl mx-auto px-4 py-6">
+      <h1 class="text-2xl font-bold text-gray-900">Azure Latency Test</h1>
+      <p class="text-sm text-gray-500 mt-1">Test network latency to Azure regions in Asia & Australia</p>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 py-8 space-y-8">
+    <!-- Mode Toggle -->
+    <section class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+      <h2 class="text-lg font-semibold text-gray-800 mb-3">Measurement Mode</h2>
+      <app-mode-toggle
+        [selectedMode]="mode()"
+        (modeChange)="onModeChange($event)"
+      />
+      <p class="text-xs text-gray-500 mt-2">
+        @switch (mode()) {
+          @case ('vm') { WebSocket echo to target VMs — measures network + application latency }
+          @case ('blob') { HTTP HEAD to Azure Storage — measures network + infrastructure latency }
+          @case ('both') { Both methods side-by-side for comparison }
+        }
+      </p>
+    </section>
+
+    <!-- Region Selector -->
+    <section class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+      <h2 class="text-xl font-semibold text-gray-800 mb-4">Select Regions</h2>
+      <app-region-selector
+        [regions]="regions()"
+        [selectedRegions]="selectedRegions()"
+        (selectionChange)="onSelectionChange($event)"
+      />
+    </section>
+
+    <!-- Action Buttons -->
+    <div class="flex gap-3">
+      <button
+        (click)="runTest()"
+        [disabled]="!canTest()"
+        [class]="canTest()
+          ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg'
+          : 'bg-gray-300 text-gray-500 cursor-not-allowed'"
+        class="px-6 py-3 rounded-lg font-semibold transition-all duration-150">
+        @if (isRunning()) {
+          <span class="inline-flex items-center gap-2">
+            <span class="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
+            Testing...
+          </span>
+        } @else {
+          Test Latency
+        }
+      </button>
+
+      @if (results().length > 0 || selectedRegions().length > 0) {
+        <button
+          (click)="clearAll()"
+          class="px-6 py-3 rounded-lg font-semibold bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 transition-all duration-150">
+          Clear All
+        </button>
+      }
+    </div>
+
+    <!-- Results -->
+    @if (results().length > 0) {
+      <section class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <app-latency-results
+          [results]="results()"
+          [regions]="regions()"
+          [mode]="mode()"
+          [bestVmRegionId]="bestVmRegionId()"
+          [bestBlobRegionId]="bestBlobRegionId()"
+        />
+      </section>
+    }
+  </main>
+</div>

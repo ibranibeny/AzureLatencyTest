@@ -1,0 +1,103 @@
+@if (sortedResults().length > 0) {
+  <div class="space-y-2">
+    <h3 class="text-lg font-semibold text-gray-800 mb-3">Results</h3>
+    <div class="overflow-hidden rounded-lg border border-gray-200">
+      <table class="w-full text-sm">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-4 py-3 text-left font-medium text-gray-600">Region</th>
+            <th class="px-4 py-3 text-left font-medium text-gray-600">City</th>
+            @if (showVm()) {
+              <th class="px-4 py-3 text-right font-medium text-gray-600">VM Latency</th>
+            }
+            @if (showBlob()) {
+              <th class="px-4 py-3 text-right font-medium text-gray-600">Blob Latency</th>
+            }
+            @if (showDiff()) {
+              <th class="px-4 py-3 text-right font-medium text-gray-600">Difference</th>
+            }
+            <th class="px-4 py-3 text-center font-medium text-gray-600">Status</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+          @for (result of sortedResults(); track result.regionId) {
+            <tr [class]="(result.isBestVm || result.isBestBlob) ? 'bg-green-50' : 'bg-white'">
+              <td class="px-4 py-3">
+                <div class="flex items-center gap-2">
+                  @if (result.isBestVm && showVm()) {
+                    <span class="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">
+                      Best VM
+                    </span>
+                  }
+                  @if (result.isBestBlob && showBlob()) {
+                    <span class="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700">
+                      Best Blob
+                    </span>
+                  }
+                  <span class="font-medium text-gray-900">{{ result.displayName }}</span>
+                </div>
+              </td>
+              <td class="px-4 py-3 text-gray-600">{{ result.city }}</td>
+              @if (showVm()) {
+                <td class="px-4 py-3 text-right font-mono">
+                  @if (result.vmStatus === 'testing') {
+                    <span class="inline-block h-4 w-4 animate-spin rounded-full border-2 border-blue-500 border-t-transparent"></span>
+                  } @else if (result.vmLatencyMs !== null) {
+                    <span class="font-semibold">{{ result.vmLatencyMs }}</span>
+                    <span class="text-gray-400 ml-1">ms</span>
+                  } @else {
+                    <span class="text-gray-400">—</span>
+                  }
+                </td>
+              }
+              @if (showBlob()) {
+                <td class="px-4 py-3 text-right font-mono">
+                  @if (result.blobStatus === 'testing') {
+                    <span class="inline-block h-4 w-4 animate-spin rounded-full border-2 border-blue-500 border-t-transparent"></span>
+                  } @else if (result.blobLatencyMs !== null) {
+                    <span class="font-semibold">{{ result.blobLatencyMs }}</span>
+                    <span class="text-gray-400 ml-1">ms</span>
+                  } @else {
+                    <span class="text-gray-400">—</span>
+                  }
+                </td>
+              }
+              @if (showDiff()) {
+                <td class="px-4 py-3 text-right font-mono">
+                  @if (getDifference(result) !== null) {
+                    <span [class]="getDifference(result)! > 0 ? 'text-orange-600' : 'text-green-600'" class="font-semibold">
+                      {{ getDifference(result)! > 0 ? '+' : '' }}{{ getDifference(result) }}
+                    </span>
+                    <span class="text-gray-400 ml-1">ms</span>
+                  } @else {
+                    <span class="text-gray-400">—</span>
+                  }
+                </td>
+              }
+              <td class="px-4 py-3 text-center">
+                @if (showVm() && showBlob()) {
+                  <div class="flex flex-col items-center gap-0.5">
+                    <span [class]="getStatusColor(result.vmStatus)" class="text-xs font-medium">
+                      VM: {{ result.vmStatus === 'timeout' ? 'Unreachable' : result.vmStatus }}
+                    </span>
+                    <span [class]="getStatusColor(result.blobStatus)" class="text-xs font-medium">
+                      Blob: {{ result.blobStatus === 'timeout' ? 'Unreachable' : result.blobStatus }}
+                    </span>
+                  </div>
+                } @else if (showVm()) {
+                  <span [class]="getStatusColor(result.vmStatus)" class="text-xs font-medium uppercase">
+                    {{ result.vmStatus === 'timeout' ? 'Unreachable' : result.vmStatus }}
+                  </span>
+                } @else {
+                  <span [class]="getStatusColor(result.blobStatus)" class="text-xs font-medium uppercase">
+                    {{ result.blobStatus === 'timeout' ? 'Unreachable' : result.blobStatus }}
+                  </span>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+}

@@ -1,0 +1,51 @@
+<div class="space-y-6">
+  <!-- Select All / Deselect All -->
+  <div class="flex gap-2">
+    <button
+      (click)="selectAll()"
+      class="text-sm px-3 py-1 rounded bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors">
+      Select All
+    </button>
+    <button
+      (click)="deselectAll()"
+      class="text-sm px-3 py-1 rounded bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors">
+      Deselect All
+    </button>
+  </div>
+
+  <!-- Asia Regions -->
+  <div>
+    <h3 class="text-lg font-semibold text-gray-800 mb-3">Asia</h3>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+      @for (region of asiaRegions(); track region.id) {
+        <button
+          (click)="toggleRegion(region.id)"
+          [class]="isSelected(region.id)
+            ? 'bg-blue-600 text-white border-blue-600 shadow-md'
+            : 'bg-white text-gray-700 border-gray-300 hover:border-blue-400 hover:bg-blue-50'"
+          class="px-4 py-3 rounded-lg border-2 transition-all duration-150 text-left">
+          <div class="font-medium text-sm">{{ region.displayName }}</div>
+          <div class="text-xs opacity-75">{{ region.city }}</div>
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- Australia & NZ Regions -->
+  <div>
+    <h3 class="text-lg font-semibold text-gray-800 mb-3">Australia & New Zealand</h3>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+      @for (region of australiaRegions(); track region.id) {
+        <button
+          (click)="toggleRegion(region.id)"
+          [class]="isSelected(region.id)
+            ? 'bg-blue-600 text-white border-blue-600 shadow-md'
+            : 'bg-white text-gray-700 border-gray-300 hover:border-blue-400 hover:bg-blue-50'"
+          class="px-4 py-3 rounded-lg border-2 transition-all duration-150 text-left">
+          <div class="font-medium text-sm">{{ region.displayName }}</div>
+          <div class="text-xs opacity-75">{{ region.city }}</div>
+        </button>
+      }
+    </div>
+  </div>
+</div>

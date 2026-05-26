@@ -1,0 +1,141 @@
+#cloud-config
+package_update: true
+packages:
+  - nginx
+  - nodejs
+  - npm
+
+write_files:
+  - path: /etc/nginx/sites-available/frontend
+    content: |
+      server {
+          listen 80 default_server;
+          listen [::]:80 default_server;
+
+          root /var/www/frontend;
+          index index.html;
+
+          # Proxy /api requests to Node.js backend
+          location /api/ {
+              proxy_pass http://127.0.0.1:3000;
+              proxy_http_version 1.1;
+              proxy_set_header Host $host;
+              proxy_set_header X-Real-IP $remote_addr;
+              proxy_read_timeout 15s;
+          }
+
+          # Serve Angular SPA
+          location / {
+              try_files $uri $uri/ /index.html;
+          }
+
+          # Cache static assets
+          location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff2?)$ {
+              expires 1h;
+              add_header Cache-Control "public, immutable";
+          }
+      }
+
+  - path: /opt/backend/package.json
+    content: |
+      {
+        "name": "latency-backend",
+        "version": "1.0.0",
+        "main": "server.js",
+        "dependencies": {
+          "express": "^4.21.0"
+        }
+      }
+
+  - path: /opt/backend/server.js
+    content: |
+      const express = require('express');
+      const { execFile } = require('child_process');
+      const app = express();
+      const PORT = 3000;
+
+      const ALLOWED_IPS = new Set([
+        '20.70.1.15',       // australiacentral
+        '20.191.224.28',    // australiaeast
+        '20.11.184.225',    // australiasoutheast
+        '172.196.49.10',    // newzealandnorth
+        '23.98.42.161',     // eastasia
+        '20.212.209.81',    // southeastasia
+        '20.222.122.69',    // japaneast
+        '4.190.218.51',     // japanwest
+        '20.214.166.237',   // koreacentral
+        '20.214.57.81',     // koreasouth
+        '13.71.0.39',       // centralindia
+        '52.172.93.203',    // southindia
+        '48.193.41.29',     // indonesiacentral
+        '85.211.182.154',   // malaysiawest
+      ]);
+
+      function isValidIPv4(ip) {
+        const parts = ip.split('.');
+        if (parts.length !== 4) return false;
+        return parts.every(p => {
+          const n = parseInt(p, 10);
+          return n >= 0 && n <= 255 && String(n) === p;
+        });
+      }
+
+      function parsePingOutput(stdout) {
+        const match = stdout.match(/rtt min\/avg\/max\/mdev = [\d.]+\/([\d.]+)\//);
+        if (match) return parseFloat(match[1]);
+        return null;
+      }
+
+      app.get('/api/ping', (req, res) => {
+        const target = req.query.target;
+        if (!target || !isValidIPv4(target)) {
+          return res.status(400).json({ error: 'Invalid target IP' });
+        }
+        if (!ALLOWED_IPS.has(target)) {
+          return res.status(403).json({ error: 'Target not allowed' });
+        }
+        execFile('ping', ['-c', '3', '-W', '2', target], { timeout: 10000 }, (error, stdout) => {
+          if (error) {
+            return res.json({ target, latencyMs: null, status: 'error', message: 'Unreachable' });
+          }
+          const avgMs = parsePingOutput(stdout);
+          if (avgMs === null) {
+            return res.json({ target, latencyMs: null, status: 'error', message: 'Parse failed' });
+          }
+          res.json({ target, latencyMs: Math.round(avgMs), status: 'success' });
+        });
+      });
+
+      app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
+
+      app.listen(PORT, '127.0.0.1', () => {
+        console.log(`Backend on 127.0.0.1:${PORT}`);
+      });
+
+  - path: /etc/systemd/system/latency-backend.service
+    content: |
+      [Unit]
+      Description=Latency Test Backend
+      After=network.target
+
+      [Service]
+      Type=simple
+      User=root
+      WorkingDirectory=/opt/backend
+      ExecStart=/usr/bin/node /opt/backend/server.js
+      Restart=always
+      RestartSec=5
+
+      [Install]
+      WantedBy=multi-user.target
+
+runcmd:
+  - rm -f /etc/nginx/sites-enabled/default
+  - ln -s /etc/nginx/sites-available/frontend /etc/nginx/sites-enabled/frontend
+  - mkdir -p /var/www/frontend
+  - cd /opt/backend && npm install
+  - systemctl daemon-reload
+  - systemctl enable latency-backend
+  - systemctl start latency-backend
+  - systemctl restart nginx
+  - systemctl enable nginx

@@ -3,6 +3,7 @@
 # - If VM is deallocated/stopped → starts it
 # - If VM doesn't exist → creates it with cloud-init (ws-echo + nginx)
 # - Opens inbound NSG rules (port 80, 8080)
+# - Enables public network access on storage accounts (blob latency tests)
 #
 # Usage: ./ensure-vms-ready.sh
 
@@ -213,5 +214,22 @@ if [[ "$frontend_status" != "NOT_FOUND" ]]; then
 fi
 
 echo ""
+echo "=== Ensuring Storage Account network rules allow public access ==="
+echo ""
+
+for region in "${REGIONS[@]}"; do
+  sa=$(storage_name "$region")
+  rg=$(rg_name "$region")
+  printf "  $sa: "
+  az storage account update \
+    --name "$sa" \
+    --resource-group "$rg" \
+    --public-network-access Enabled \
+    --default-action Allow \
+    --output none 2>/dev/null && echo "✓ OK" || echo "✗ FAIL"
+done
+
+echo ""
 echo "Done. All VMs should be accessible on ports 80 (nginx) and 8080 (ws-echo)."
 echo "Frontend VM accessible on port 80."
+echo "Storage accounts open for blob latency tests."

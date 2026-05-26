@@ -160,4 +160,58 @@ for region in "${REGIONS[@]}"; do
 done
 
 echo ""
+echo "=== Ensuring Frontend VM is running ==="
+echo ""
+
+FRONTEND_RG="rg-latency-frontend-vm"
+FRONTEND_VM="vm-latency-frontend"
+FRONTEND_NSG="nsg-latency-frontend"
+
+# Check if frontend VM exists and start if needed
+frontend_status=$(az vm get-instance-view \
+  --resource-group "$FRONTEND_RG" \
+  --name "$FRONTEND_VM" \
+  --query "instanceView.statuses[?starts_with(code,'PowerState/')].displayStatus | [0]" \
+  -o tsv 2>/dev/null || echo "NOT_FOUND")
+
+case "$frontend_status" in
+  "VM running")
+    echo "  ✓ Frontend VM already running"
+    ;;
+  "VM deallocated"|"VM stopped")
+    echo "  Starting Frontend VM (was $frontend_status)..."
+    az vm start --resource-group "$FRONTEND_RG" --name "$FRONTEND_VM" --output none
+    echo "  ✓ Frontend VM started"
+    ;;
+  *)
+    echo "  ⚠ Frontend VM not found — run create-frontend-vm.sh first"
+    ;;
+esac
+
+# Ensure frontend NSG inbound rule for port 80
+if [[ "$frontend_status" != "NOT_FOUND" ]]; then
+  echo "  Ensuring frontend NSG inbound rule (port 80)..."
+  az network nsg rule create \
+    --resource-group "$FRONTEND_RG" \
+    --nsg-name "$FRONTEND_NSG" \
+    --name "AllowHTTP" \
+    --priority 100 \
+    --direction Inbound \
+    --access Allow \
+    --protocol Tcp \
+    --destination-port-ranges 80 \
+    --source-address-prefixes "*" \
+    --output none 2>/dev/null || true
+  echo "  ✓ Frontend NSG rule OK (80)"
+
+  FRONTEND_IP=$(az vm list-ip-addresses \
+    --resource-group "$FRONTEND_RG" \
+    --name "$FRONTEND_VM" \
+    --query "[0].virtualMachine.network.publicIpAddresses[0].ipAddress" \
+    --output tsv 2>/dev/null || echo "N/A")
+  echo "  Frontend IP: $FRONTEND_IP"
+fi
+
+echo ""
 echo "Done. All VMs should be accessible on ports 80 (nginx) and 8080 (ws-echo)."
+echo "Frontend VM accessible on port 80."

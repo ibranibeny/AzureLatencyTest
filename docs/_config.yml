@@ -3,16 +3,7 @@ description: "Workshop — Measure and compare latency across 14 Azure regions i
 baseurl: "/AzureLatencyTest"
 url: "https://ibranibeny.github.io"
 
-theme: minima
-
-search_enabled: true
-
-heading_anchors: true
 permalink: pretty
-
-aux_links:
-  "GitHub Repo":
-    - "https://github.com/ibranibeny/AzureLatencyTest"
 
 aux_links_new_tab: true
 

@@ -1,0 +1,23 @@
+title: "Azure APAC Latency Test"
+description: "Workshop — Measure and compare latency across 14 Azure regions in Asia-Pacific"
+baseurl: "/AzureLatencyTest"
+url: "https://ibranibeny.github.io"
+
+remote_theme: just-the-docs/just-the-docs
+
+plugins:
+  - jekyll-remote-theme
+
+permalink: pretty
+
+aux_links_new_tab: true
+
+nav_sort: case_insensitive
+back_to_top: true
+back_to_top_text: "Back to top"
+
+footer_content: "Azure Latency Test Workshop &mdash; Microsoft Indonesia"
+
+exclude:
+  - "*.drawio"
+  - "*.bkp"

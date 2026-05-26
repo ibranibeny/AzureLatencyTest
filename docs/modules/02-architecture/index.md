@@ -17,20 +17,13 @@ nav_order: 3
 
 ## Overview
 
-```mermaid
-flowchart LR
-    Browser["Browser / CLI"] -->|WebSocket| VM1["VM: ws-echo\nPort 8080"]
-    Browser -->|HTTP HEAD| VM2["VM: nginx /ping\nPort 80"]
-    Browser -->|HTTPS GET| Blob["Storage Account\nStatic Website"]
-    
-    subgraph "× 14 APAC Regions"
-        VM1
-        VM2
-        Blob
-    end
-```
+![Azure APAC Latency Test - High Level Architecture](../../diagrams/azure_latency_architecture.png)
+
+The platform deploys resources across 14 Azure APAC regions and measures latency using three different protocols from the client browser.
 
 ## Per-Region Resources
+
+![Per-Region Resource Stack](../../diagrams/azure_latency_per_region.png)
 
 Each of the 14 regions contains:
 
@@ -43,6 +36,8 @@ Each of the 14 regions contains:
 | Storage Account | `latency{region}` | Blob latency endpoint |
 
 ## Latency Measurement Types
+
+![Latency Measurement Flow](../../diagrams/azure_latency_dataflow.png)
 
 ### WebSocket (Primary)
 - Persistent TCP connection on port 8080
@@ -70,6 +65,16 @@ Latency is dominated by:
 2. **Network hops** (routing efficiency)
 3. **TLS overhead** (for HTTPS/WSS)
 4. **Application processing** (negligible for echo)
+
+## Regenerating Diagrams
+
+The architecture diagrams are generated using [mingrammer/diagrams](https://github.com/mingrammer/diagrams). To regenerate:
+
+```bash
+pip install diagrams
+cd docs/diagrams
+python3 architecture.py
+```
 
 ---
 

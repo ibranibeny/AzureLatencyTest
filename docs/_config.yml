@@ -3,14 +3,9 @@ description: "Workshop — Measure and compare latency across 14 Azure regions i
 baseurl: "/AzureLatencyTest"
 url: "https://ibranibeny.github.io"
 
-remote_theme: just-the-docs/just-the-docs
+theme: minima
 
-plugins:
-  - jekyll-remote-theme
-
-color_scheme: light
 search_enabled: true
-search.button: true
 
 heading_anchors: true
 permalink: pretty

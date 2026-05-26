@@ -46,11 +46,13 @@ jobs:
 
       - name: Deploy to gh-pages
         run: |
-          cd _site
-          touch .nojekyll
-          git init
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout --orphan gh-pages
+          git rm -rf .
+          cp -r _site/* .
+          cp _site/.nojekyll . 2>/dev/null || true
+          touch .nojekyll
           git add .
           git commit -m "Deploy site"
-          git push --force "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" HEAD:gh-pages
+          git push --force origin gh-pages

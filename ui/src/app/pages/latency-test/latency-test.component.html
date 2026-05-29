@@ -8,6 +8,26 @@
   </header>
 
   <main class="max-w-6xl mx-auto px-4 py-8 space-y-8">
+    <!-- Source IP Info -->
+    @if (ipInfo()) {
+      <section class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+        <div class="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
+          <div class="flex items-center gap-2">
+            <span class="text-gray-500">Your IP:</span>
+            <span class="font-mono font-semibold text-gray-900">{{ ipInfo()!.ip }}</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-gray-500">ISP:</span>
+            <span class="font-semibold text-gray-900">{{ ipInfo()!.isp }}</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-gray-500">Location:</span>
+            <span class="font-semibold text-gray-900">{{ ipInfo()!.city }}, {{ ipInfo()!.region }}, {{ ipInfo()!.country }}</span>
+          </div>
+        </div>
+      </section>
+    }
+
     <!-- Mode Toggle -->
     <section class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
       <h2 class="text-lg font-semibold text-gray-800 mb-3">Measurement Mode</h2>

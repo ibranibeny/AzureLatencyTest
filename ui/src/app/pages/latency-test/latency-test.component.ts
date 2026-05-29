@@ -5,6 +5,7 @@ import { LatencyResultsComponent } from '../../components/latency-results/latenc
 import { ModeToggleComponent } from '../../components/mode-toggle/mode-toggle.component';
 import { RegionService } from '../../services/region.service';
 import { LatencyOrchestratorService } from '../../services/latency-orchestrator.service';
+import { IpInfoService } from '../../services/ip-info.service';
 import { LatencyResult, LatencyStatus, MeasurementMode } from '../../models/latency.model';
 
 @Component({
@@ -16,7 +17,9 @@ import { LatencyResult, LatencyStatus, MeasurementMode } from '../../models/late
 export class LatencyTestComponent {
   private regionService = inject(RegionService);
   private orchestrator = inject(LatencyOrchestratorService);
+  private ipInfoService = inject(IpInfoService);
 
+  ipInfo = this.ipInfoService.ipInfo;
   regions = this.regionService.regions;
   selectedRegions = signal<string[]>([]);
   results = signal<LatencyResult[]>([]);

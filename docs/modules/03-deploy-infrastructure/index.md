@@ -80,6 +80,76 @@ Each VM is provisioned with:
 # Enables: systemd services for auto-restart
 ```
 
+## Checking VM Readiness
+
+Use `ensure-vms-ready.sh` as your single command to verify and fix the entire infrastructure:
+
+```bash
+bash deploy/ensure-vms-ready.sh
+```
+
+### What It Checks
+
+| Check | Action if Failed |
+|-------|-----------------|
+| Resource group exists | Creates it |
+| VM power state | Starts if stopped/deallocated, creates if missing |
+| NSG rules (ports 80, 8080) | Creates inbound Allow rules |
+| Frontend VM (`vm-latency-frontend`) | Starts if stopped, warns if missing |
+| Frontend NSG (port 80) | Creates inbound Allow rule |
+| Storage account public access | Enables public network access |
+
+### Example Output
+
+```
+=== Ensuring all 14 VMs are running ===
+
+[australiacentral]
+  ✓ Already running
+  Ensuring NSG inbound rules...
+  ✓ NSG rules OK (80, 8080)
+
+[southeastasia]
+  Starting VM (was VM deallocated)...
+  ✓ Start initiated
+  Ensuring NSG inbound rules...
+  ✓ NSG rules OK (80, 8080)
+
+=== All VMs ready. Public IPs: ===
+
+REGION               IP
+------               --
+australiacentral     20.53.x.x
+southeastasia        20.198.x.x
+...
+
+=== Ensuring Frontend VM is running ===
+  ✓ Frontend VM already running
+  ✓ Frontend NSG rule OK (80)
+  Frontend IP: 4.194.41.14
+
+=== Ensuring Storage Account network rules allow public access ===
+  salatencyauce: ✓ OK
+  salatencysea: ✓ OK
+  ...
+```
+
+### When to Run
+
+- **Before a workshop** — ensures all VMs are warmed up and accessible
+- **After cost-saving deallocations** — restarts all VMs in one command
+- **After NSG changes** — re-applies required inbound rules
+- **Diagnosing connectivity issues** — validates the full stack
+
+### Prerequisites
+
+The script sources `deploy/config.sh` which defines:
+- `REGIONS` array (14 APAC regions)
+- Naming functions: `rg_name`, `vm_name`, `nsg_name`, `pip_name`, `storage_name`
+- `VM_IMAGE` and `ADMIN_USER`
+
+Ensure you are logged into Azure CLI (`az login`) before running.
+
 ## Troubleshooting
 
 | Issue | Solution |
@@ -87,6 +157,9 @@ Each VM is provisioned with:
 | VM stuck in "Creating" | Wait 5 min, then `az vm start` |
 | Port 8080 not reachable | Run `ensure-vms-ready.sh` to fix NSG |
 | Storage 404 | Re-run `upload-blob-payload.sh` |
+| VM OOM during build | Add swap: `fallocate -l 2G /swapfile && mkswap /swapfile && swapon /swapfile` |
+| Node.js version mismatch | Angular 19 requires Node >= 20. Upgrade via NodeSource |
+| `run-command` lock | Deallocate and restart the VM to clear extension locks |
 
 ---
 

@@ -36,12 +36,33 @@ Each region has:
 - **Storage Account** with static website hosting for blob latency tests
 - **NSG** with inbound rules for ports 80 and 8080
 
+## Features
+
+- **Real-time latency measurement** — WebSocket, HTTP ping, and Blob download tests
+- **IP/ISP/Location card** — Displays your public IP, ISP, and geolocation on the dashboard
+- **14 APAC regions** — Comprehensive coverage from Auckland to Mumbai
+- **Idempotent deployment** — `ensure-vms-ready.sh` safely handles create, start, and NSG in one pass
+- **Live frontend** — Angular 19 dashboard at [http://4.194.41.14/](http://4.194.41.14/)
+
 ## Quick Start
 
 ### Prerequisites
 - Azure CLI (`az`) authenticated
 - Bash shell (WSL/Linux/macOS)
-- Node.js 18+ (for local testing)
+- Node.js 20+ (for local testing and Angular 19 build)
+
+### Check & Start All VMs
+
+```bash
+cd deploy
+bash ensure-vms-ready.sh
+```
+
+This single idempotent script:
+- Creates/starts all 14 APAC VMs and the frontend VM
+- Ensures NSG rules for ports 80 and 8080
+- Enables public access on storage accounts
+- Prints a summary of all public IPs
 
 ### Deploy All Infrastructure
 

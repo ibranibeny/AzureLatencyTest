@@ -46,8 +46,9 @@ A latency measurement platform that:
 | 5 | [Analyze Results](modules/05-analyze-results/) | 15 min | Interpret findings |
 | 6 | [Frontend Dashboard](modules/06-frontend/) | 20 min | Deploy the Angular UI |
 | 7 | [Cleanup](modules/07-cleanup/) | 5 min | Destroy resources |
+| 8 | [Azure Visualizer Demo](modules/08-azure-visualizer-demo/) | 20 min | Generate architecture diagrams with Copilot |
 
-**Total estimated time: ~1.5 hours**
+**Total estimated time: ~1.5 hours** (+ 20 min optional visualizer demo)
 
 ## Key Design Decisions
 

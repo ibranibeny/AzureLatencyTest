@@ -7,20 +7,20 @@ const PORT = 3000;
 
 // Allowed target IPs (whitelist from regions-db.json to prevent abuse)
 const ALLOWED_IPS = new Set([
-  '20.70.1.15',       // australiacentral
-  '20.191.224.28',    // australiaeast
-  '20.11.184.225',    // australiasoutheast
-  '172.196.49.10',    // newzealandnorth
-  '23.98.42.161',     // eastasia
-  '20.212.209.81',    // southeastasia
-  '20.222.122.69',    // japaneast
-  '4.190.218.51',     // japanwest
-  '20.214.166.237',   // koreacentral
-  '20.214.57.81',     // koreasouth
-  '13.71.0.39',       // centralindia
-  '52.172.93.203',    // southindia
-  '48.193.41.29',     // indonesiacentral
-  '85.211.182.154',   // malaysiawest
+  '20.227.139.227',   // australiacentral
+  '20.28.218.20',     // australiaeast
+  '23.101.225.112',   // australiasoutheast
+  '172.196.48.116',   // newzealandnorth
+  '104.208.81.168',   // eastasia
+  '4.194.141.31',     // southeastasia
+  '20.222.52.209',    // japaneast
+  '20.78.154.16',     // japanwest
+  '4.230.6.218',      // koreacentral
+  '20.214.10.172',    // koreasouth
+  '4.247.157.36',     // centralindia
+  '52.140.56.237',    // southindia
+  '48.193.42.197',    // indonesiacentral
+  '172.197.170.58',   // malaysiawest
 ]);
 
 // Validate IP format (IPv4 only)

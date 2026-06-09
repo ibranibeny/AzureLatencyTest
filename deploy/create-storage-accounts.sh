@@ -20,15 +20,16 @@ for region in "${REGIONS[@]}"; do
     --kind "$STORAGE_KIND" \
     --access-tier "$STORAGE_ACCESS_TIER" \
     --allow-blob-public-access true \
+    --allow-shared-key-access true \
     --min-tls-version TLS1_2 \
     --output none 2>/dev/null || echo "  (already exists or error)"
 
-  # Create public container
+  # Create container (using login auth; no public-access due to subscription policy)
   echo "  Creating container: $BLOB_CONTAINER..."
   az storage container create \
     --name "$BLOB_CONTAINER" \
     --account-name "$sa" \
-    --public-access blob \
+    --auth-mode login \
     --output none 2>/dev/null || echo "  (container already exists)"
 
   echo "  Done: $sa"

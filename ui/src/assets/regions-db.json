@@ -4,153 +4,139 @@
     "displayName": "Australia Central",
     "city": "Canberra",
     "group": "australia",
-    "ip": "20.70.1.15",
-    "pingUrl": "http://20.70.1.15/ping",
-    "wsUrl": "ws://20.70.1.15:8080",
-    "storageAccountName": "latencyaustraliacentral",
-    "blobUrl": "https://latencyaustraliacentral.z24.web.core.windows.net/latency-test.json"
+    "ip": "20.227.139.227",
+    "pingUrl": "http://20.227.139.227/ping",
+    "wsUrl": "ws://20.227.139.227:8080",
+    "storageAccountName": "latencyaustraliacentral"
   },
   {
     "id": "australiaeast",
     "displayName": "Australia East",
     "city": "Sydney",
     "group": "australia",
-    "ip": "20.191.224.28",
-    "pingUrl": "http://20.191.224.28/ping",
-    "wsUrl": "ws://20.191.224.28:8080",
-    "storageAccountName": "latencyaustraliaeast",
-    "blobUrl": "https://latencyaustraliaeast.z8.web.core.windows.net/latency-test.json"
+    "ip": "20.28.218.20",
+    "pingUrl": "http://20.28.218.20/ping",
+    "wsUrl": "ws://20.28.218.20:8080",
+    "storageAccountName": "latencyaustraliaeast"
   },
   {
     "id": "australiasoutheast",
     "displayName": "Australia Southeast",
     "city": "Melbourne",
     "group": "australia",
-    "ip": "20.11.184.225",
-    "pingUrl": "http://20.11.184.225/ping",
-    "wsUrl": "ws://20.11.184.225:8080",
-    "storageAccountName": "latencyaustraliasoutheas",
-    "blobUrl": "https://latencyaustraliasoutheas.z26.web.core.windows.net/latency-test.json"
+    "ip": "23.101.225.112",
+    "pingUrl": "http://23.101.225.112/ping",
+    "wsUrl": "ws://23.101.225.112:8080",
+    "storageAccountName": "latencyaustraliasoutheas"
   },
   {
     "id": "newzealandnorth",
     "displayName": "New Zealand North",
     "city": "Auckland",
     "group": "australia",
-    "ip": "172.196.49.10",
-    "pingUrl": "http://172.196.49.10/ping",
-    "wsUrl": "ws://172.196.49.10:8080",
-    "storageAccountName": "latencynewzealandnorth",
-    "blobUrl": "https://latencynewzealandnorth.z44.web.core.windows.net/latency-test.json"
+    "ip": "172.196.48.116",
+    "pingUrl": "http://172.196.48.116/ping",
+    "wsUrl": "ws://172.196.48.116:8080",
+    "storageAccountName": "latencynewzealandnorth"
   },
   {
     "id": "eastasia",
     "displayName": "East Asia",
     "city": "Hong Kong",
     "group": "asia",
-    "ip": "23.98.42.161",
-    "pingUrl": "http://23.98.42.161/ping",
-    "wsUrl": "ws://23.98.42.161:8080",
-    "storageAccountName": "latencyeastasia",
-    "blobUrl": "https://latencyeastasia.z7.web.core.windows.net/latency-test.json"
+    "ip": "104.208.81.168",
+    "pingUrl": "http://104.208.81.168/ping",
+    "wsUrl": "ws://104.208.81.168:8080",
+    "storageAccountName": "latencyeastasia"
   },
   {
     "id": "southeastasia",
     "displayName": "Southeast Asia",
     "city": "Singapore",
     "group": "asia",
-    "ip": "20.212.209.81",
-    "pingUrl": "http://20.212.209.81/ping",
-    "wsUrl": "ws://20.212.209.81:8080",
-    "storageAccountName": "latencysoutheastasia",
-    "blobUrl": "https://latencysoutheastasia.z23.web.core.windows.net/latency-test.json"
+    "ip": "4.194.141.31",
+    "pingUrl": "http://4.194.141.31/ping",
+    "wsUrl": "ws://4.194.141.31:8080",
+    "storageAccountName": "latencysoutheastasia"
   },
   {
     "id": "japaneast",
     "displayName": "Japan East",
     "city": "Tokyo",
     "group": "asia",
-    "ip": "20.222.122.69",
-    "pingUrl": "http://20.222.122.69/ping",
-    "wsUrl": "ws://20.222.122.69:8080",
-    "storageAccountName": "latencyjapaneast",
-    "blobUrl": "https://latencyjapaneast.z11.web.core.windows.net/latency-test.json"
+    "ip": "20.222.52.209",
+    "pingUrl": "http://20.222.52.209/ping",
+    "wsUrl": "ws://20.222.52.209:8080",
+    "storageAccountName": "latencyjapaneast"
   },
   {
     "id": "japanwest",
     "displayName": "Japan West",
     "city": "Osaka",
     "group": "asia",
-    "ip": "4.190.218.51",
-    "pingUrl": "http://4.190.218.51/ping",
-    "wsUrl": "ws://4.190.218.51:8080",
-    "storageAccountName": "latencyjapanwest",
-    "blobUrl": "https://latencyjapanwest.z31.web.core.windows.net/latency-test.json"
+    "ip": "20.78.154.16",
+    "pingUrl": "http://20.78.154.16/ping",
+    "wsUrl": "ws://20.78.154.16:8080",
+    "storageAccountName": "latencyjapanwest"
   },
   {
     "id": "koreacentral",
     "displayName": "Korea Central",
     "city": "Seoul",
     "group": "asia",
-    "ip": "20.214.166.237",
-    "pingUrl": "http://20.214.166.237/ping",
-    "wsUrl": "ws://20.214.166.237:8080",
-    "storageAccountName": "latencykoreacentral",
-    "blobUrl": "https://latencykoreacentral.z12.web.core.windows.net/latency-test.json"
+    "ip": "4.230.6.218",
+    "pingUrl": "http://4.230.6.218/ping",
+    "wsUrl": "ws://4.230.6.218:8080",
+    "storageAccountName": "latencykoreacentral"
   },
   {
     "id": "koreasouth",
     "displayName": "Korea South",
     "city": "Busan",
     "group": "asia",
-    "ip": "20.214.57.81",
-    "pingUrl": "http://20.214.57.81/ping",
-    "wsUrl": "ws://20.214.57.81:8080",
-    "storageAccountName": "latencykoreasouth",
-    "blobUrl": "https://latencykoreasouth.z32.web.core.windows.net/latency-test.json"
+    "ip": "20.214.10.172",
+    "pingUrl": "http://20.214.10.172/ping",
+    "wsUrl": "ws://20.214.10.172:8080",
+    "storageAccountName": "latencykoreasouth"
   },
   {
     "id": "centralindia",
     "displayName": "Central India",
     "city": "Pune",
     "group": "asia",
-    "ip": "13.71.0.39",
-    "pingUrl": "http://13.71.0.39/ping",
-    "wsUrl": "ws://13.71.0.39:8080",
-    "storageAccountName": "latencycentralindia",
-    "blobUrl": "https://latencycentralindia.z29.web.core.windows.net/latency-test.json"
+    "ip": "4.247.157.36",
+    "pingUrl": "http://4.247.157.36/ping",
+    "wsUrl": "ws://4.247.157.36:8080",
+    "storageAccountName": "latencycentralindia"
   },
   {
     "id": "southindia",
     "displayName": "South India",
     "city": "Chennai",
     "group": "asia",
-    "ip": "52.172.93.203",
-    "pingUrl": "http://52.172.93.203/ping",
-    "wsUrl": "ws://52.172.93.203:8080",
-    "storageAccountName": "latencysouthindia",
-    "blobUrl": "https://latencysouthindia.z30.web.core.windows.net/latency-test.json"
+    "ip": "52.140.56.237",
+    "pingUrl": "http://52.140.56.237/ping",
+    "wsUrl": "ws://52.140.56.237:8080",
+    "storageAccountName": "latencysouthindia"
   },
   {
     "id": "indonesiacentral",
     "displayName": "Indonesia Central",
     "city": "Jakarta",
     "group": "asia",
-    "ip": "48.193.41.29",
-    "pingUrl": "http://48.193.41.29/ping",
-    "wsUrl": "ws://48.193.41.29:8080",
-    "storageAccountName": "latencyindonesiacentral",
-    "blobUrl": "https://latencyindonesiacentral.z45.web.core.windows.net/latency-test.json"
+    "ip": "48.193.42.197",
+    "pingUrl": "http://48.193.42.197/ping",
+    "wsUrl": "ws://48.193.42.197:8080",
+    "storageAccountName": "latencyindonesiacentral"
   },
   {
     "id": "malaysiawest",
     "displayName": "Malaysia West",
     "city": "Kuala Lumpur",
     "group": "asia",
-    "ip": "85.211.182.154",
-    "pingUrl": "http://85.211.182.154/ping",
-    "wsUrl": "ws://85.211.182.154:8080",
-    "storageAccountName": "latencymalaysiawest",
-    "blobUrl": "https://latencymalaysiawest.z48.web.core.windows.net/latency-test.json"
+    "ip": "172.197.170.58",
+    "pingUrl": "http://172.197.170.58/ping",
+    "wsUrl": "ws://172.197.170.58:8080",
+    "storageAccountName": "latencymalaysiawest"
   }
 ]

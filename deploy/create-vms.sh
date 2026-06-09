@@ -12,9 +12,11 @@ if [[ ! -f "$CLOUD_INIT_FILE" ]]; then
   exit 1
 fi
 
-echo "Deploying VMs to ${#REGIONS[@]} regions..."
+echo "Deploying VMs to ${#REGIONS[@]} regions (parallel)..."
 
-for region in "${REGIONS[@]}"; do
+deploy_vm() {
+  local region="$1"
+  local rg vm nsg pip
   rg=$(rg_name "$region")
   vm=$(vm_name "$region")
   nsg=$(nsg_name "$region")
@@ -23,7 +25,7 @@ for region in "${REGIONS[@]}"; do
   # Check if VM already exists
   if az vm show --resource-group "$rg" --name "$vm" &>/dev/null; then
     echo "  [EXISTS] $vm in $rg"
-    continue
+    return 0
   fi
 
   echo "  [CREATE] $vm in $region..."
@@ -56,6 +58,17 @@ for region in "${REGIONS[@]}"; do
     --destination-port-ranges 22 \
     --output none
 
+  az network nsg rule create \
+    --resource-group "$rg" \
+    --nsg-name "$nsg" \
+    --name "AllowWebSocket" \
+    --priority 120 \
+    --direction Inbound \
+    --access Allow \
+    --protocol Tcp \
+    --destination-port-ranges 8080 \
+    --output none
+
   # Create public IP
   az network public-ip create \
     --resource-group "$rg" \
@@ -77,7 +90,47 @@ for region in "${REGIONS[@]}"; do
     --custom-data "$CLOUD_INIT_FILE" \
     --output none \
     --no-wait
+
+  echo "  [DONE] $vm queued"
+}
+
+export -f deploy_vm rg_name vm_name nsg_name pip_name
+export VM_IMAGE VM_SKU ADMIN_USER CLOUD_INIT_FILE PREFIX
+
+# Run up to 5 parallel deployments
+for region in "${REGIONS[@]}"; do
+  deploy_vm "$region" &
+  # Limit to 5 concurrent jobs
+  if (( $(jobs -r | wc -l) >= 5 )); then
+    wait -n
+  fi
+done
+wait
+
+echo "Waiting for VMs to be provisioned..."
+for region in "${REGIONS[@]}"; do
+  local_rg=$(rg_name "$region")
+  local_vm=$(vm_name "$region")
+  az vm wait -g "$local_rg" -n "$local_vm" --created --timeout 600 2>/dev/null || true
 done
 
-echo "Done. VMs are being provisioned (--no-wait)."
+echo "Adding subnet NSG rules for HTTP and WebSocket..."
+for region in "${REGIONS[@]}"; do
+  local_rg=$(rg_name "$region")
+  # Azure truncates auto-created subnet NSG names to 80 chars; discover the actual name
+  subnet_nsg=$(az network nsg list -g "$local_rg" --query "[?contains(name,'Subnet')].name" -o tsv 2>/dev/null)
+  if [[ -n "$subnet_nsg" ]]; then
+    az network nsg rule create -g "$local_rg" --nsg-name "$subnet_nsg" \
+      --name AllowHTTP --priority 100 --direction Inbound --access Allow \
+      --protocol Tcp --destination-port-ranges 80 --source-address-prefixes '*' \
+      --output none 2>/dev/null || true
+    az network nsg rule create -g "$local_rg" --nsg-name "$subnet_nsg" \
+      --name AllowWebSocket --priority 110 --direction Inbound --access Allow \
+      --protocol Tcp --destination-port-ranges 8080 --source-address-prefixes '*' \
+      --output none 2>/dev/null || true
+    echo "  [NSG] $region: rules added"
+  fi
+done
+
+echo "Done. All VMs provisioned with NSG rules."
 echo "Run ./check-vm-status.sh to verify when ready."

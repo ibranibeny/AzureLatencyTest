@@ -32,10 +32,9 @@ export class BlobLatencyService {
 
         clearTimeout(timeoutId);
 
-        if (response.ok) {
-          const rtt = performance.now() - start;
-          rtts.push(rtt);
-        }
+        // Any response (even 4xx) measures valid network RTT
+        const rtt = performance.now() - start;
+        rtts.push(rtt);
       }
 
       if (rtts.length === 0) {

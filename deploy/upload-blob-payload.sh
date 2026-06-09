@@ -22,6 +22,7 @@ for region in "${REGIONS[@]}"; do
     --file "$TEMP_FILE" \
     --content-type "application/json" \
     --overwrite \
+    --auth-mode login \
     --output none 2>/dev/null || echo "  (upload failed)"
 
   echo "  Done: $sa"

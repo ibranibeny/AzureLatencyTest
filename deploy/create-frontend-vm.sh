@@ -21,7 +21,7 @@ echo "=== Deploying Frontend VM in ${REGION} ==="
 echo "[1/7] Resource group..."
 az group create --name "$RG" --location "$REGION" --output none 2>/dev/null || true
 
-# 2. Create NSG with HTTP rule
+# 2. Create NSG with HTTP and SSH rules
 echo "[2/7] Network Security Group..."
 az network nsg create --resource-group "$RG" --name "$NSG_NAME" --location "$REGION" --output none 2>/dev/null || true
 az network nsg rule create \
@@ -33,6 +33,17 @@ az network nsg rule create \
   --access Allow \
   --protocol Tcp \
   --destination-port-ranges 80 \
+  --source-address-prefixes '*' \
+  --output none 2>/dev/null || true
+az network nsg rule create \
+  --resource-group "$RG" \
+  --nsg-name "$NSG_NAME" \
+  --name AllowSSH \
+  --priority 110 \
+  --direction Inbound \
+  --access Allow \
+  --protocol Tcp \
+  --destination-port-ranges 22 \
   --source-address-prefixes '*' \
   --output none 2>/dev/null || true
 
@@ -71,30 +82,54 @@ cd "${PROJECT_ROOT}/ui"
 npm ci --silent
 npm run build
 
-# 6. Upload Angular build to VM
-echo "[6/7] Uploading frontend files..."
+# 6. Upload Angular build to VM via blob storage + az vm run-command
+# (SSH is blocked by subscription policy; using run-command as alternative)
+echo "[6/7] Uploading frontend files via blob storage..."
 DIST_DIR="${PROJECT_ROOT}/ui/dist/ui/browser"
+DEPLOY_SA="latency${REGION}"
+DEPLOY_CONTAINER="public"
+DEPLOY_BLOB="frontend-dist.tar.gz"
 
-# Wait for VM to be ready
-echo "  Waiting for VM to be reachable..."
-for i in $(seq 1 30); do
-  if ssh -o StrictHostKeyChecking=no -o ConnectTimeout=5 "${ADMIN_USER}@${PUBLIC_IP}" "echo ready" 2>/dev/null; then
-    break
-  fi
-  sleep 10
-done
-
-# Upload dist files
-ssh -o StrictHostKeyChecking=no "${ADMIN_USER}@${PUBLIC_IP}" "sudo mkdir -p /var/www/frontend"
+# Create tarball and upload to blob storage
 tar -czf /tmp/frontend-dist.tar.gz -C "$DIST_DIR" .
-scp -o StrictHostKeyChecking=no /tmp/frontend-dist.tar.gz "${ADMIN_USER}@${PUBLIC_IP}:/tmp/"
-ssh -o StrictHostKeyChecking=no "${ADMIN_USER}@${PUBLIC_IP}" \
-  "sudo tar -xzf /tmp/frontend-dist.tar.gz -C /var/www/frontend && sudo chown -R www-data:www-data /var/www/frontend"
+az storage blob upload \
+  --account-name "$DEPLOY_SA" \
+  --container-name "$DEPLOY_CONTAINER" \
+  --name "$DEPLOY_BLOB" \
+  --file /tmp/frontend-dist.tar.gz \
+  --overwrite \
+  --auth-mode login \
+  --output none
 
-# 7. Wait for cloud-init to complete and verify
-echo "[7/7] Waiting for cloud-init..."
-ssh -o StrictHostKeyChecking=no "${ADMIN_USER}@${PUBLIC_IP}" \
-  "sudo cloud-init status --wait >/dev/null 2>&1; sudo systemctl restart nginx; sudo systemctl restart latency-backend"
+# Generate SAS URL for the VM to download
+EXPIRY=$(date -u -d "+1 hour" '+%Y-%m-%dT%H:%MZ')
+SAS=$(az storage blob generate-sas \
+  --account-name "$DEPLOY_SA" \
+  --container-name "$DEPLOY_CONTAINER" \
+  --name "$DEPLOY_BLOB" \
+  --permissions r \
+  --expiry "$EXPIRY" \
+  --auth-mode login \
+  --as-user \
+  -o tsv)
+BLOB_URL="https://${DEPLOY_SA}.blob.core.windows.net/${DEPLOY_CONTAINER}/${DEPLOY_BLOB}?${SAS}"
+
+# Download and extract on VM via run-command
+az vm run-command invoke \
+  --resource-group "$RG" \
+  --name "$VM_NAME" \
+  --command-id RunShellScript \
+  --scripts "set -e; curl -sL -o /tmp/frontend-dist.tar.gz '${BLOB_URL}' && rm -rf /var/www/frontend/* && tar -xzf /tmp/frontend-dist.tar.gz -C /var/www/frontend/ && chown -R www-data:www-data /var/www/frontend && echo DEPLOY_OK" \
+  --output none
+
+# 7. Wait for cloud-init to complete and restart services
+echo "[7/7] Restarting services..."
+az vm run-command invoke \
+  --resource-group "$RG" \
+  --name "$VM_NAME" \
+  --command-id RunShellScript \
+  --scripts "cloud-init status --wait >/dev/null 2>&1 || true; systemctl restart nginx; systemctl restart latency-backend; echo SERVICES_OK" \
+  --output none
 
 echo ""
 echo "=== Frontend VM deployed ==="
